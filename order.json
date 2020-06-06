@@ -1,0 +1,36 @@
+{
+  "key": "ZB_CS_1",
+  "templateid": "1",
+  "title": "LILANZ",
+  "storeName": "利郎官方旗舰店（天猫）",
+  "orderid": "14204-20200600113019",
+  "orderTime": "2019/08/13",
+  "memberName": "",
+  "transactionNumber": "1034024641637070200",
+  "receiver": "陈巧艺",
+  "contactNumber": "18658101021",
+  "receiverAddress": "福建省晋江市长兴路200号利郎集团",
+  "sum": "4件",
+  "orderList": [
+    {
+      "id": "18DRF0021Y",
+      "size": 175,
+      "num": "1件"
+    },
+    {
+      "id": "18DRF0021Y",
+      "size": 175,
+      "num": "1件"
+    },
+    {
+      "id": "18DRF0021Y",
+      "size": 175,
+      "num": "1件"
+    },
+    {
+      "id": "18DRF0021Y",
+      "size": 175,
+      "num": "1件"
+    }
+  ]
+}

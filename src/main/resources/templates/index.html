@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+        <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    <title>print</title>
+</head>
+<script>
+    $(function () {
+        $("#print").click(function () {
+            var cid = $("#cid").val();
+            var url = "/print";
+            var data = $("#courier").serialize();
+            $.post(url,data,function (data) {
+                alert(data.message);
+            },"json");
+        });
+    });
+</script>
+<body>
+    <form id="courier">
+        <!--<label>订单编号</label><input id="cid" type="text"/><br>-->
+        <label>打印机选择</label><input id="pid" name="pid" type="text"/><br>
+        <label>配置表选择</label><input id="did" name="did" type="text"/><br>
+        <label>打印数量</label><input id="printNum" name="printNum" type="text"/><br>
+        <!--<label>打印方式</label><input id="courierStatus" type="text"/><br>-->
+        <label>条形码编号</label><input id="barcode" name="barcode" type="text"/><br>
+        <label>二维码地址</label><input id="qrcode" name="qrcode" type="text"/><br>
+        <!--<label>快递单号</label><input id="trackingNumber" name="trackingNumber" type="text"/><br>-->
+        <label>收件人姓名</label><input id="recipientName" name="recipientName" type="text"/><br>
+        <label>收件人电话</label><input id="recipientTel" name="recipientTel" type="text"/><br>
+        <label>收件人地址</label><input id="recipientAddress" name="recipientAddress" type="text"/><br>
+        <label>收件人详细地址</label><input id="recipientAddressDetail" name="recipientAddressDetail" type="text"/><br>
+        <label>寄件人姓名</label><input id="senderName" name="senderName" type="text"/><br>
+        <label>寄件人电话</label><input id="senderTel" name="senderTel" type="text"/><br>
+        <label>寄件人地址</label><input id="senderAddress" name="senderAddress" type="text"/><br>
+        <label>寄件人详细地址</label><input id="senderAddressDetail" name="senderAddressDetail" type="text"/><br>
+        <input type="submit" id="print" value="打印"/>
+    </form>
+</body>
+</html>

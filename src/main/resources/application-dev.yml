@@ -1,0 +1,50 @@
+server:
+  port: 80
+  servlet:
+    session:
+      timeout: 30
+  tomcat:
+    uri-encoding: UTF-8
+    max-threads: 0
+
+spring:
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML5
+    encoding: UTF-8
+    cache: false
+    servlet:
+      content-type: text/html
+  datasource:
+    username: root
+    password: ll=8805
+    url: jdbc:mysql://192.168.135.99:3306/printer?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  application:
+    name: printer-service
+  cloud:
+    config:
+      label: master
+      profile: dev
+      discovery:
+        enabled: true
+        serviceId: frame-config
+      name: base-mssql
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://lilanz:ll8727@192.168.35.96:8901/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+mybatis:
+  mapper-locations: classpath:mapper/*Mapper.xml
+  type-aliases-package: com.lilanz.printer.dao
+
+logging:
+  file:
+    path: /mylog

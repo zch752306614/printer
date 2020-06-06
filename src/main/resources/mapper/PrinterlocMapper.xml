@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lilanz.printer.dao.PrinterlocMapper" >
+  <resultMap id="BaseResultMap" type="com.lilanz.printer.entity.Printerloc" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="printerkey" property="printerkey" jdbcType="VARCHAR" />
+    <result column="locid" property="locid" jdbcType="VARCHAR" />
+    <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="editor" property="editor" jdbcType="VARCHAR" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from yx_t_printerloc
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.lilanz.printer.entity.Printerloc" >
+    insert into yx_t_printerloc (id, printerkey, locid, 
+      createTime, editor)
+    values (#{id,jdbcType=INTEGER}, #{printerkey,jdbcType=VARCHAR}, #{locid,jdbcType=VARCHAR}, 
+      #{createtime,jdbcType=TIMESTAMP}, #{editor,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.lilanz.printer.entity.Printerloc" >
+    update yx_t_printerloc
+    set printerkey = #{printerkey,jdbcType=VARCHAR},
+      locid = #{locid,jdbcType=VARCHAR},
+      createTime = #{createtime,jdbcType=TIMESTAMP},
+      editor = #{editor,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select id, printerkey, locid, createTime, editor
+    from yx_t_printerloc
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, printerkey, locid, createTime, editor
+    from yx_t_printerloc
+  </select>
+</mapper>
