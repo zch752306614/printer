@@ -108,6 +108,12 @@
 
         <dependency>
             <groupId>com.lilanz</groupId>
+            <artifactId>RXTXcomm</artifactId>
+            <version>1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.lilanz</groupId>
             <artifactId>zprinter</artifactId>
             <version>1.0</version>
         </dependency>

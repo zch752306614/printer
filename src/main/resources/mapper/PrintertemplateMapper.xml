@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lilanz.printer.dao.PrintertemplateMapper" >
+  <resultMap id="BaseResultMap" type="com.lilanz.printer.entity.Printertemplate" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="templateid" property="templateid" jdbcType="VARCHAR" />
+    <result column="template_name" property="templateName" jdbcType="VARCHAR" />
+    <result column="paper_width" property="paperWidth" jdbcType="INTEGER" />
+    <result column="paper_height" property="paperHeight" jdbcType="INTEGER" />
+    <result column="paper_gap" property="paperGap" jdbcType="INTEGER" />
+    <result column="creat_time" property="creatTime" jdbcType="TIMESTAMP" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from yx_t_printerTemplate
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.lilanz.printer.entity.Printertemplate" >
+    insert into yx_t_printerTemplate (id, templateid, template_name, 
+      paper_width, paper_height, creat_time, 
+      creator,paper_gap)
+    values (#{id,jdbcType=INTEGER}, #{templateid,jdbcType=VARCHAR}, #{templateName,jdbcType=VARCHAR}, 
+      #{paperWidth,jdbcType=INTEGER}, #{paperHeight,jdbcType=INTEGER}, #{creatTime,jdbcType=TIMESTAMP}, 
+      #{creator,jdbcType=VARCHAR}), #{paperGap,jdbcType=INTEGER}
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.lilanz.printer.entity.Printertemplate" >
+    update yx_t_printerTemplate
+    set templateid = #{templateid,jdbcType=VARCHAR},
+      template_name = #{templateName,jdbcType=VARCHAR},
+      paper_width = #{paperWidth,jdbcType=INTEGER},
+      paper_height = #{paperHeight,jdbcType=INTEGER},
+      creat_time = #{creatTime,jdbcType=TIMESTAMP},
+      creator = #{creator,jdbcType=VARCHAR},
+      paper_gap = #{paperGap,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select id, templateid, template_name, paper_width, paper_height, paper_gap, creat_time, creator
+    from yx_t_printerTemplate
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, templateid, template_name, paper_width, paper_height, creat_time, creator, paper_gap
+    from yx_t_printerTemplate
+  </select>
+</mapper>

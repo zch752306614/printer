@@ -1,19 +1,18 @@
 package com.lilanz.printer.controller;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.lilanz.printer.entity.Courier;
 import com.lilanz.printer.entity.Printer;
 import com.lilanz.printer.entity.Printerconf;
+import com.lilanz.printer.entity.Printertemplate;
 import com.lilanz.printer.service.GainschaPrinterService;
 import com.lilanz.printer.service.PrinterService;
 import com.lilanz.printer.service.PrinterconfService;
-import org.apache.logging.log4j.core.tools.picocli.CommandLine;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import com.lilanz.printer.service.PrintertemplateService;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +25,8 @@ public class IndexController {
     private PrinterService printerService;
     @Resource
     private PrinterconfService printerconfService;
+    @Resource
+    private PrintertemplateService printertemplateService;
 
     @RequestMapping(value = "/printOrder")
     public Map<String, String> print(@RequestBody String data) {
@@ -34,21 +35,22 @@ public class IndexController {
         JSONObject jsonObject = JSONObject.parseObject(data);
         System.out.println("jsonObject:" + jsonObject);
 
+        Printertemplate printertemplate = printertemplateService.selectByPrimaryKey(Integer.parseInt(jsonObject.getString("templateid")));
         List<Printerconf> list = printerconfService.selectByTemplate(jsonObject.getString("templateid"));
         Printer printer = printerService.selectByKey(jsonObject.getString("key"));
 
         Map<String, String> message = new HashMap<>();
         try {
-            GainschaPrinterService gainschaPrinterService = new GainschaPrinterService();
+            GainschaPrinterService gainschaPrinterService = new GainschaPrinterService(printertemplate);
             gainschaPrinterService.printOrder(printer, jsonObject, list);
 
-            message.put("message", "print success!");
-            message.put("code", "1");
+            message.put("errcode", "0");
+            message.put("errmsg", "print success!");
             System.out.println("print success!");
         } catch (Exception e) {
-            message.put("message", "print fail!");
-        } finally {
-            return message;
+            message.put("errcode", "-1");
+            message.put("errmsg", "print fail!");
         }
+        return message;
     }
 }

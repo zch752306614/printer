@@ -2,10 +2,12 @@ package com.lilanz.printer.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.gp.command.EscCommand;
 import com.gp.command.LabelCommand;
 import com.gp.port.Internet;
 import com.lilanz.printer.entity.Printer;
 import com.lilanz.printer.entity.Printerconf;
+import com.lilanz.printer.entity.Printertemplate;
 import com.lilanz.printer.exception.MyException;
 import com.lilanz.printer.util.PdfToImage;
 import com.lilanz.printer.util.judgeField;
@@ -17,17 +19,14 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.Vector;
 
 @Component
 public class GainschaPrinterService {
 
-    private final LabelCommand tsc;
+    private LabelCommand tsc;
 
     private int h = 0;
     private int w = 0;
@@ -45,6 +44,8 @@ public class GainschaPrinterService {
 
     public GainschaPrinterService() {
         tsc = new LabelCommand();
+        tsc.addSize(100, 150);
+        tsc.addCls();
         //添加初始化命令
         tsc.addResetPrinter();
         //设置标签长宽
@@ -58,7 +59,32 @@ public class GainschaPrinterService {
         //设置打印速度
         //tsc.addSpeed(LabelCommand.TSCSPEED.SPEED4);
         //设置打印方向
-        //tsc.addDirection(LabelCommand.DIRECTION.FORWARD, LabelCommand.MIRROR.NORMAL);
+        tsc.addDirection(LabelCommand.DIRECTION.FORWARD, LabelCommand.MIRROR.NORMAL);
+        //设置原点坐标
+        tsc.addReference(0, 0);
+        //查询打印机状态
+        //tsc.addQueryPrinterStatus();
+        System.out.println("打印机初始化成功！");
+    }
+
+    public GainschaPrinterService(Printertemplate printertemplate) {
+        tsc = new LabelCommand();
+        tsc.addSize(printertemplate.getPaperWidth(), printertemplate.getPaperHeight());
+        tsc.addCls();
+        //添加初始化命令
+        tsc.addResetPrinter();
+        //设置标签长宽
+        tsc.addSize(printertemplate.getPaperWidth(), printertemplate.getPaperHeight());
+        //清除缓存，必须放在addSize后面才生效
+        tsc.addCls();
+        //设置标签间隙
+        tsc.addGap(printertemplate.getPaperGap());
+        //设置打印浓度
+        tsc.addDensity(LabelCommand.DENSITY.DNESITY15);
+        //设置打印速度
+        //tsc.addSpeed(LabelCommand.TSCSPEED.SPEED4);
+        //设置打印方向
+        tsc.addDirection(LabelCommand.DIRECTION.FORWARD, LabelCommand.MIRROR.NORMAL);
         //设置原点坐标
         tsc.addReference(0, 0);
         //查询打印机状态
@@ -185,16 +211,18 @@ public class GainschaPrinterService {
     }
 
     //获取打印图片指令
-    private void getPictureData(int x, int y, int size, String path) {
+    private void getPictureData(int x, int y, int width, int height, String path) {
         try {
             //获取目标图片的本地路径
             String Spath = path.trim();
-            int index = Spath.lastIndexOf(".png");
+            //int index = Spath.lastIndexOf(".jpg");
             //获取图片转换成位图后的本地存储路径
-            String Lpath = new StringBuilder(Spath).insert(index, "_bitMap").toString();
+            //String Lpath = new StringBuilder(Spath).insert(index, "_bitMap").toString();
+            String Lpath = Spath.replace(".jpg",".bmp");
+            Lpath = Lpath.replace(".png",".bmp");
             System.out.println(Spath + "\n" + Lpath);
             //转换成位图
-            String Bpath = bigorsmall(size, eve2bmp(Spath, Lpath), Lpath);
+            String Bpath = bigorsmall(width, height, eve2bmp(Spath, Lpath), Lpath);
             System.out.println(Bpath);
             //添加打印位图指令
             tsc.addBitmap(Bpath, x, y, LabelCommand.BITMAP_MODE.OVERWRITE);
@@ -230,15 +258,15 @@ public class GainschaPrinterService {
         internetDisconnect(internet);
     }
 
-    private String bigorsmall(int mWidth, String Spath, String Lpath) {
+    private String bigorsmall(int mWidth, int mHeight, String Spath, String Lpath) {
         try {
             FileInputStream fileInputStream = new FileInputStream(Spath);
             BufferedImage srcImg = ImageIO.read(fileInputStream);
 
             int i = srcImg.getHeight((ImageObserver) null) * mWidth / 8 * 7;
             int height = i / srcImg.getWidth((ImageObserver) null);
-            Image smallImg = srcImg.getScaledInstance(mWidth, height, 1);
-            BufferedImage tag = new BufferedImage(mWidth, height, 12);
+            Image smallImg = srcImg.getScaledInstance(mWidth, mHeight, 1);
+            BufferedImage tag = new BufferedImage(mWidth, mHeight, 12);
             Graphics g = tag.getGraphics();
             g.drawImage(smallImg, 0, 0, (ImageObserver) null);
             FileOutputStream fileOutputStream = new FileOutputStream(Lpath);
@@ -295,7 +323,7 @@ public class GainschaPrinterService {
             for (int i = star; i < end; i++) {
                 String picPath = fileAddress + fileName + "_" + (i + 1) + ".png";
                 //这个800可以用作宽度的打印
-                getPictureData(0, 0, 800, picPath);
+                getPictureData(0, 0, 800,1500, picPath);
                 sendPrint(internet);
             }
 
@@ -340,7 +368,7 @@ public class GainschaPrinterService {
             }
 
             if (judgeField.isExistFieldByJson(name, jsonObject)) {
-                text += jsonObject.getString(name);
+                text = defaults.replaceAll("\\{\\$}", jsonObject.getString(name));
             }
 
             //判断是否启用该配置
@@ -355,7 +383,7 @@ public class GainschaPrinterService {
             } else if (type.equals("rectangle")) {
                 getBoxData(x, y, x + width, y + height, size);
             } else if (type.equals("picture")) {
-                getPictureData(x, y, size, path);
+                getPictureData(x, y, width, height, text);
             } else if (type.equals("qrCode")) {
                 getQRcodeData(x, y, size, rotate, text);
             } else if (type.equals("barCode")) {
@@ -408,6 +436,63 @@ public class GainschaPrinterService {
                 internetDisconnect(internet);
             }
         }
+    }
+
+    public static void main(String[] args) {
+        Internet internet =new Internet();
+        internet.openNetPort("192.168.36.254", 9100);
+        LabelCommand tsc = new LabelCommand();
+        tsc.addSize(100, 150);
+        tsc.addCls();
+        tsc.addResetPrinter();
+        tsc.addSize(100, 150);
+        tsc.addCls();
+        tsc.addGap(2);
+        tsc.addDensity(LabelCommand.DENSITY.DNESITY15);
+        //设置打印速度
+        //tsc.addSpeed(LabelCommand.TSCSPEED.SPEED4);
+        tsc.addDirection(LabelCommand.DIRECTION.FORWARD, LabelCommand.MIRROR.NORMAL);
+        tsc.addReference(0, 0);
+        /*tsc.addCodePage(LabelCommand.CODEPAGE.PC850);
+        tsc.addText(10,150, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0,
+                LabelCommand.FONTMUL.MUL_2, LabelCommand.FONTMUL.MUL_2,"测试内容11111aaaaa");
+        tsc.addPrint(1);*/
+        Vector<Byte> data = tsc.getCommand();
+
+        String str = "TEXT 10,100,\"1\",0,1,1,\"1号字体\"\r\n";
+        str += "TEXT 10,150,\"2\",0,1,1,\"2号字体\"\r\n";
+        str += "TEXT 10,200,\"3\",0,1,1,\"3号字体\"\r\n";
+        str += "TEXT 10,250,\"4\",0,1,1,\"4号字体\"\r\n";
+        str += "TEXT 10,300,\"5\",0,1,1,\"5号字体\"\r\n";
+        str += "TEXT 10,350,\"6\",0,1,1,\"6号字体\"\r\n";
+        str += "TEXT 10,400,\"7\",0,1,1,\"7号字体\"\r\n";
+        str += "TEXT 10,450,\"8\",0,1,1,\"8号字体\"\r\n";
+        str += "TEXT 10,500,\"9\",0,1,1,\"9号字体\"\r\n";
+        str += "TEXT 10,550,\"10\",0,1,1,\"10号字体\"\r\n";
+        str += "TEXT 10,600,\"11\",0,1,1,\"11号字体\"\r\n";
+        str += "TEXT 10,600,\"12\",0,1,1,\"12号字体\"\r\n";
+        str += "TEXT 10,600,\"55\",0,1,1,\"55号字体\"\r\n";
+        str += "PRINT 1\r\n";
+        byte[] bs = null;
+        if (!str.equals("")) {
+            try {
+                bs = str.getBytes("GB2312");
+            } catch (UnsupportedEncodingException var4) {
+                var4.printStackTrace();
+            }
+
+            for(int i = 0; i < bs.length; ++i) {
+                data.add(bs[i]);
+            }
+        }
+
+        byte[] byteData = new byte[data.size()];
+        for (int i = 0; i < data.size(); i++) {
+            byteData[i] = data.get(i);
+        }
+        internet.sendMessage(byteData);
+        internet.closeNetPort();
+        System.out.println("success!");
     }
 
 }
